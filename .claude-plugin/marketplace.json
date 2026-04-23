@@ -1,0 +1,18 @@
+{
+  "name": "team-code-review",
+  "owner": {
+    "name": "Stefano Maffeis",
+    "url": "https://github.com/lesbass"
+  },
+  "plugins": [
+    {
+      "name": "team-code-review",
+      "source": ".",
+      "description": "Rush-themed 3-agent parallel code reviewer (Geddy, Alex, Neil) covering Security & Correctness, Standards & Architecture, Testability & Performance.",
+      "version": "1.0.0",
+      "category": "code-review",
+      "keywords": ["code-review", "dotnet", "team", "parallel-agents"],
+      "license": "MIT"
+    }
+  ]
+}

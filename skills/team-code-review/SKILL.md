@@ -16,7 +16,7 @@ Launch 3 specialized code-reviewer agents in parallel. Each has a fixed codename
 ## Prerequisites
 
 - Inside a git repository with the target branch checked out
-- .NET solution (workstep-service or similar)
+- .NET solution with `dotnet build` / `dotnet test` runnable at repo root
 
 For Bitbucket PRs: check out the PR source branch manually (`git fetch && git checkout <pr-branch>`), optionally paste the PR description when invoking so reviewers have plan context.
 
