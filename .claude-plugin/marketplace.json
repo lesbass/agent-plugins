@@ -1,5 +1,5 @@
 {
-  "name": "team-code-review",
+  "name": "agent-plugins",
   "owner": {
     "name": "Stefano Maffeis",
     "url": "https://github.com/lesbass"
@@ -7,7 +7,7 @@
   "plugins": [
     {
       "name": "team-code-review",
-      "source": ".",
+      "source": "./plugins/team-code-review",
       "description": "Rush-themed 3-agent parallel code reviewer (Geddy, Alex, Neil) covering Security & Correctness, Standards & Architecture, Testability & Performance.",
       "version": "1.0.0",
       "category": "code-review",

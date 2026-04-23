@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Rush-themed 3-agent parallel code reviewer (Geddy, Alex, Neil) that reviews the current branch along Security & Correctness, Standards & Architecture, and Testability & Performance dimensions.",
   "author": "Stefano Maffeis <23306152+lesbass@users.noreply.github.com>",
-  "homepage": "https://github.com/lesbass/team-code-review-plugin",
-  "repository": "https://github.com/lesbass/team-code-review-plugin",
+  "homepage": "https://github.com/lesbass/agent-plugins",
+  "repository": "https://github.com/lesbass/agent-plugins",
   "license": "MIT",
   "keywords": ["code-review", "dotnet", "team", "parallel-agents"]
 }

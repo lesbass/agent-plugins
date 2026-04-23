@@ -1,63 +1,50 @@
-# team-code-review
+# agent-plugins
 
-Claude Code plugin. Launches a team of 3 parallel code-reviewer agents — **Geddy**, **Alex**, **Neil** (the Rush trio) — each owning an orthogonal review dimension.
+A Claude Code **marketplace** hosting plugins I build for my own workflow. Install the marketplace once, then pick and choose individual plugins.
 
-| Codename | Dimension |
+## Plugins in this marketplace
+
+| Plugin | Purpose |
 |---|---|
-| **Geddy** | Security & Correctness |
-| **Alex** | Standards & Architecture |
-| **Neil** | Testability & Performance |
+| [`team-code-review`](plugins/team-code-review) | Rush-themed 3-agent parallel code reviewer (Geddy / Alex / Neil) covering Security & Correctness, Standards & Architecture, Testability & Performance. .NET-oriented. |
 
-All three read the same full diff of the current branch vs. base; aggregated output is deduplicated and sorted by severity.
+More will land here over time.
 
-## Requirements
-
-- [Claude Code](https://docs.claude.com/en/docs/claude-code)
-- `dotnet` CLI (reviewers run `dotnet build` + `dotnet test` as preflight)
-- `feature-dev` plugin installed (provides the `code-reviewer` sub-agent used under the hood)
-- Optional: `/security-review` skill (sharper security pass), `tokensave` MCP (cross-referencing)
-
-## Install
-
-### Option A — Marketplace (recommended)
+## Install the marketplace
 
 From inside Claude Code:
 
 ```
-/plugin marketplace add lesbass/team-code-review-plugin
-/plugin install team-code-review@team-code-review
+/plugin marketplace add lesbass/agent-plugins
 ```
 
-Updates later:
+Then install any plugin by name:
 
 ```
-/plugin marketplace update team-code-review
+/plugin install team-code-review@agent-plugins
 ```
 
-### Option B — Direct clone
-
-```bash
-git clone https://github.com/lesbass/team-code-review-plugin ~/.claude/plugins/team-code-review
-```
-
-Then restart Claude Code. The skill `team-code-review` will be discovered automatically.
-
-## Usage
-
-From inside a git repo with the target branch checked out:
+Update later:
 
 ```
-/team-code-review
+/plugin marketplace update agent-plugins
 ```
 
-Optionally paste a PR description / ticket summary as argument so reviewers have plan context to verify implementation against intent.
+## One-liner to share with teammates
 
-For Bitbucket PRs: `git fetch && git checkout <pr-branch>` first, then invoke.
+Paste both commands together into Claude Code — they'll run in sequence:
 
-## Output
+```
+/plugin marketplace add lesbass/agent-plugins
+/plugin install team-code-review@agent-plugins
+```
 
-Unified table with columns: `# | Sev | Conf | File:Line | Issue | Fix | By`. Sorted Critical → Important → Low; within severity, Confidence High → Low. Overlapping findings from multiple reviewers are merged into a single row.
+## Plugin-specific docs
+
+Each plugin has its own README / SKILL.md under `plugins/<name>/`. See:
+
+- [`plugins/team-code-review/skills/team-code-review/SKILL.md`](plugins/team-code-review/skills/team-code-review/SKILL.md) — full spec of the review flow, prompts, and aggregation logic.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE). Applies to all plugins in this repository unless overridden.
