@@ -1,6 +1,6 @@
 ---
 name: team-code-review
-description: Launch a team of 3 parallel code-reviewer agents (Geddy, Alex, Neil — the Rush trio) that review the current branch's changes along three orthogonal dimensions: Security & Correctness, Standards & Architecture, Testability & Performance. Uses TeamCreate with tmux panels when available.
+description: "Launch a team of 3 parallel code-reviewer agents (Geddy, Alex, Neil — the Rush trio) that review the current branch's changes along three orthogonal dimensions: Security & Correctness, Standards & Architecture, Testability & Performance. Uses TeamCreate with tmux panels when available."
 ---
 
 # Team Code Review
