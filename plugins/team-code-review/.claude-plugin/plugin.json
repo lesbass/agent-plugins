@@ -1,6 +1,6 @@
 {
   "name": "team-code-review",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Rush-themed 3-agent parallel code reviewer (Geddy, Alex, Neil) that reviews the current branch along Security & Correctness, Standards & Architecture, and Testability & Performance dimensions.",
   "author": {
     "name": "Stefano Maffeis",
