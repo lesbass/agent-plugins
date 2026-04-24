@@ -56,10 +56,13 @@ Fallback: `main` → `master` → `develop` (first that exists as ref).
 ### Step 3 — Preflight gate
 
 Run build + tests. Abort review if either fails (no point reviewing broken code).
+
 ```bash
-dotnet build -c Debug --nologo -v quiet
-dotnet test -c Debug --nologo --no-build -v quiet
+bash {skill_dir}/scripts/preflight.sh [Debug|Release]
 ```
+
+`{skill_dir}` = directory of this skill file. Default config: `Debug`. Pass `Release` if the project requires it.
+
 If fail: report error, stop. If pass: continue. Skip preflight only if user explicitly says so (e.g. `--fast`).
 
 ### Step 4 — Compute changed-files list
@@ -96,103 +99,24 @@ Single message, up to 3 `Agent` calls:
 
 **Note on tmux pane titles**: the `name` parameter does NOT rename tmux panes. Pane title follows `subagent_type`, so all three show as `feature-dev:code-reviewer`. To disambiguate visually, inject the codename into the agent's first output line (see prompt header — starts with `Codename: {...}`) and identify panes by their output, not by title.
 
-#### Shared prompt header (all agents)
+#### Agent prompts
 
-```
-You are a Senior Code Reviewer. Codename: {Geddy|Alex|Neil}. Dimension: {Security&Correctness | Standards&Architecture | Testability&Performance}.
-Project: .NET {version}, {tech_stack_summary} (from CLAUDE.md).
-Repo: {repo_path}. Base: {base_branch}. Branch: {branch_name}.
+Each agent's prompt is a complete, self-contained file. Read the file and use its content as the `prompt` parameter, substituting the `{placeholders}` with runtime values before sending.
 
-{If plan context was provided (pasted PR description / ticket ID / intent summary):}
-Plan context:
----
-{plan_context}
----
-Verify implementation aligns with stated intent. Flag deviations relevant to your dimension.
+| Agent | Prompt file |
+|---|---|
+| Geddy | `agents/geddy.md` |
+| Alex | `agents/alex.md` |
+| Neil | `agents/neil.md` |
 
-Changed files (same set for all reviewers):
-{full list of changed files}
-
-Stay in your lane — do NOT duplicate work belonging to another dimension:
-- Geddy owns security, correctness, invariants, concurrency
-- Alex owns architecture, standards, readability, maintainability
-- Neil owns testability, coverage, performance, efficiency
-
-If you spot something clearly outside your dimension, flag it briefly as `[cross-ref: {other_codename}]` and move on — don't deep-dive.
-
-Output format:
-- Findings as list. Each: { severity: Critical|Important|Low, confidence: High|Med|Low, file:line, issue, suggested fix }
-- No filler. No "overall looks good" summary. Just findings.
-
-If tokensave is available (.tokensave/ exists), use `tokensave_context` for cross-referencing instead of Read/grep.
-```
-
-#### Geddy (Security & Correctness) — dimension details
-
-```
-Your dimension: security and correctness across the whole diff.
-
-Security:
-- Injection (SQL, command, path traversal, XSS if any HTML)
-- Authentication / authorization — missing checks, privilege escalation, token handling
-- Secrets — hardcoded keys, logs leaking creds, config exposure
-- Input validation — trust boundaries (API, deserialization, external callbacks)
-- Cryptography — weak algorithms, broken primitives, random sources
-- Resource exhaustion (unbounded loops, unpaged queries, zip bombs)
-
-Correctness:
-- Null handling, Option/Either misuse (no throws in domain for LanguageExt stacks)
-- Off-by-one, boundary conditions, empty collection handling
-- Concurrency — race conditions, shared state without synchronization, thread-safety on aggregates
-- Event Sourcing invariants — state mutations MUST go through Apply; no side-effects in Apply
-- Serialization backward-compatibility — enum renames/removals, property default changes, discriminator drift
-
-If `/security-review` skill is available, invoke it on suspicious subsets and fold its findings tagged `[sec-review]`.
-```
-
-#### Alex (Standards & Architecture) — dimension details
-
-```
-Your dimension: architecture, standards, and maintainability across the whole diff.
-
-Architecture:
-- SOLID violations, god classes, leaky abstractions
-- Layering discipline — Core depending on Infra? DI container referenced from domain?
-- Domain patterns — Either for error flow (not exceptions), aggregates encapsulated, events immutable
-- DI hygiene — lifetime mismatches, missing registrations, duplicate registrations, captive dependencies
-- Configuration — binding correctness, required fields validated, sane defaults
-- HttpClient usage — HttpClientFactory, typed clients, no `new HttpClient`
-- Docker/entrypoint correctness, env var handling
-
-Standards & readability:
-- Naming — intention-revealing, consistent with codebase
-- Dead code, TODOs without tickets, commented-out code
-- Excess comments explaining WHAT (should be WHY or absent)
-- Inconsistent conventions vs. surrounding code (async naming, nullability, file layout)
-- Unnecessary abstractions or premature generalization
-```
-
-#### Neil (Testability & Performance) — dimension details
-
-```
-Your dimension: testability, coverage, and runtime efficiency across the whole diff.
-
-Testability:
-- New public methods/classes without tests
-- Coverage gaps — happy path only, missing error branches, missing edge cases (empty, null, boundary)
-- Mock setups — signatures match, verify calls meaningful
-- Assertions — not too weak (`NotNull`), not too brittle (exact strings, exact message format)
-- Test patterns — xUnit, Moq, FluentAssertions consistency; AAA structure; no shared mutable fixture misuse
-- Sync-over-async anti-patterns in tests (`.Result`, `.Wait()`, `.GetAwaiter().GetResult()`)
-
-Performance:
-- Allocations in hot paths, LINQ on hot paths, unnecessary materializations (`.ToList()` before `.Count`, etc.)
-- N+1 query patterns, missing `Include`/projection, full-table scans
-- Sync-over-async in production code (blocks thread pool)
-- Missing pagination / unbounded results
-- Transaction scope too wide / too narrow
-- Logging cost — string interpolation on hot paths instead of structured logging
-```
+**Placeholders to substitute in each file:**
+- `{version}` — .NET version from CLAUDE.md or `dotnet --version`
+- `{tech_stack_summary}` — brief stack summary from CLAUDE.md
+- `{repo_path}` — absolute path to repo root
+- `{base_branch}` — detected in Step 2
+- `{branch_name}` — current branch name
+- `{plan_context}` — PR description / ticket ID pasted by user (omit the Plan context block entirely if not provided)
+- `{full list of changed files}` — output of Step 4
 
 ### Step 8 — Collect, deduplicate, and present
 
