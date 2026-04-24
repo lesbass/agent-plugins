@@ -76,6 +76,8 @@ If the diff is very large (> ~50 changed files), warn the user: `Diff is {N} fil
 
 ```bash
 echo $TMUX
+# If inside tmux, snapshot current pane IDs before launching agents
+tmux list-panes -a -F "#{pane_id}" > /tmp/review-panes-before.txt 2>/dev/null || true
 ```
 
 ### Step 6 — Create team
@@ -224,7 +226,20 @@ SendMessage to: alex   message: {"type": "shutdown_request"}
 SendMessage to: neil   message: {"type": "shutdown_request"}
 ```
 
-Skip only if user wants to ask reviewers follow-up questions on their findings — in that case shutdown at end of follow-up.
+Then close the tmux panes that were opened for the review session:
+
+```bash
+# Kill panes opened since Step 5 snapshot
+if [ -f /tmp/review-panes-before.txt ]; then
+  comm -23 \
+    <(tmux list-panes -a -F "#{pane_id}" | sort) \
+    <(sort /tmp/review-panes-before.txt) \
+    | xargs -r -I{} tmux kill-pane -t {}
+  rm -f /tmp/review-panes-before.txt
+fi
+```
+
+Skip shutdown (both SendMessage and pane kill) only if user wants follow-up questions — execute at end of follow-up instead.
 
 ## Notes
 
