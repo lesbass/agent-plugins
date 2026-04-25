@@ -21,7 +21,7 @@ From inside Claude Code:
 Then install any plugin by name:
 
 ```
-/plugin install team-code-review@agent-plugins
+/plugin install lesbass-skills@agent-plugins
 ```
 
 Update later:
@@ -36,7 +36,7 @@ Paste both commands together into Claude Code — they'll run in sequence:
 
 ```
 /plugin marketplace add lesbass/agent-plugins
-/plugin install team-code-review@agent-plugins
+/plugin install lesbass-skills@agent-plugins
 ```
 
 ## Plugin-specific docs
