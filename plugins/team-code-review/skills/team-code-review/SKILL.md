@@ -165,6 +165,25 @@ fi
 
 Skip shutdown (both SendMessage and pane kill) only if user wants follow-up questions — execute at end of follow-up instead.
 
+### Step 10 — Closing song
+
+After shutdown, pick one Police song from the list below that best fits the review outcome. Present: song title, the chosen lyric, and the YouTube search link.
+
+| Outcome | Song | Lyric |
+|---|---|---|
+| Clean — zero or only Low findings | "Walking on the Moon" | *"Giant steps are what you take / walking on the moon"* |
+| Few findings, all manageable | "Message in a Bottle" | *"I'll send an SOS to the world"* |
+| Several Important findings | "Don't Stand So Close to Me" | *"This girl is half his age"* — the code is exposing things it shouldn't |
+| Critical security findings | "Roxanne" | *"You don't have to put on the red light"* — stop shipping unsafe code |
+| Widespread correctness issues | "Synchronicity II" | *"Many miles away, something crawls from the slime"* |
+| Architecture/design chaos | "Demolition Man" | *"I'm a walking nightmare, an arsenal of doom"* |
+| Everything on fire — many Critical | "Every Breath You Take" | *"Every move you make, I'll be watching you"* — someone needs to watch this code |
+| Mixed bag, some good some bad | "De Do Do Do, De Da Da Da" | *"Their logic ties me up and robs me blind"* |
+
+YouTube search base URL: `https://www.youtube.com/results?search_query=The+Police+{Song+Title+URL+encoded}`
+
+Example: for "Roxanne" → `https://www.youtube.com/results?search_query=The+Police+Roxanne+Official`
+
 ## Notes
 
 - Codenames and dimension ownership are fixed. Do not rename or reassign per-run.

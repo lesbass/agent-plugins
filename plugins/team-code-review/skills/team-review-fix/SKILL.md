@@ -114,6 +114,25 @@ Present the active branches and suggest next steps:
 - **No conflicts expected:** `git merge review-fix-geddy review-fix-alex review-fix-neil`
 - **Conflicts possible** (same file touched by 2+ fixers): merge one branch at a time, resolve conflicts manually.
 
+### Step 8 — Closing song
+
+Pick one Rush song from the list below that best fits the fix outcome. Present: song title, the chosen lyric, and the YouTube search link.
+
+| Outcome | Song | Lyric |
+|---|---|---|
+| Everything fixed, clean build | "The Spirit of Radio" | *"Begin the day with a friendly voice / a companion unobtrusive"* |
+| Hard work done, many fixes applied | "Working Man" | *"I get up at seven, yeah, and I go to work at nine"* |
+| Some findings blocked, job partially done | "Tom Sawyer" | *"No, his mind is not for rent / to any god or government"* — won't yield on the hard ones |
+| Mostly fixed but a few edge cases remain | "Closer to the Heart" | *"And the men who hold high places / must be the ones who start"* |
+| All blocked, nothing could be fixed safely | "Subdivisions" | *"Nowhere is the dreamer or the misfit so alone"* |
+| Conflicts during merge | "The Weapon" | *"We are only immortal for a limited time"* |
+| Fast and clean — fixed everything in one pass | "Limelight" | *"Living in the limelight, the universal dream"* |
+| Messy but eventually resolved | "La Villa Strangiato" | *"An exercise in self-indulgence"* |
+
+YouTube search base URL: `https://www.youtube.com/results?search_query=Rush+{Song+Title+URL+encoded}`
+
+Example: for "Tom Sawyer" → `https://www.youtube.com/results?search_query=Rush+Tom+Sawyer+Official`
+
 ## Notes
 
 - Worktrees share the same `.git` — fixers see the same history but write to isolated branches.
