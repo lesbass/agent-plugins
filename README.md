@@ -6,7 +6,7 @@ A Claude Code **marketplace** hosting plugins I build for my own workflow. Insta
 
 | Plugin | Purpose |
 |---|---|
-| [`team-code-review`](plugins/team-code-review) | Rush-themed 3-agent parallel code reviewer (Geddy / Alex / Neil) covering Security & Correctness, Standards & Architecture, Testability & Performance. .NET-oriented. |
+| [`team-code-review`](plugins/team-code-review) | Rush-themed 3-agent parallel code reviewer (Geddy / Alex / Neil) covering Security & Correctness, Standards & Architecture, Testability & Performance. Supports .NET and TypeScript/Node projects. |
 
 More will land here over time.
 
