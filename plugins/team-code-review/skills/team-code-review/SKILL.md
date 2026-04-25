@@ -16,25 +16,49 @@ Launch 3 specialized code-reviewer agents in parallel. Each has a fixed codename
 ## Prerequisites
 
 - Inside a git repository with the target branch checked out
-- .NET solution with `dotnet build` / `dotnet test` runnable at repo root
+- Build and tests runnable from repo root (either .NET or TypeScript/Node project)
 
 For Bitbucket PRs: check out the PR source branch manually (`git fetch && git checkout <pr-branch>`), optionally paste the PR description when invoking so reviewers have plan context.
 
 ## Execution
 
-### Step 0 — Dependency check
+### Step 0 — Detect stack + dependency check
 
-Before anything else, verify required deps. Fail fast with fix suggestion on missing required; warn-only on optional.
+**Detect stack** (run from repo root):
+```bash
+if ls *.sln *.csproj 2>/dev/null | grep -q .; then
+  echo "STACK=dotnet"
+elif [ -f package.json ]; then
+  echo "STACK=node"
+else
+  echo "STACK=unknown"
+fi
+```
 
-**Required (abort if missing):**
+Set `{stack}` to `dotnet` or `node` (or `unknown`). Use it to drive all subsequent stack-specific steps.
+
+**Required deps (abort if missing):**
+
+For `STACK=dotnet`:
 ```bash
 command -v dotnet >/dev/null || echo "MISSING: dotnet CLI — install via https://dotnet.microsoft.com/download or brew install --cask dotnet-sdk"
+```
+
+For `STACK=node`:
+```bash
+command -v node >/dev/null || echo "MISSING: node — install via https://nodejs.org or nvm"
+# detect package manager: prefer yarn if yarn.lock exists, pnpm if pnpm-lock.yaml, else npm
+[ -f yarn.lock ] && echo "PKG=yarn" || ([ -f pnpm-lock.yaml ] && echo "PKG=pnpm" || echo "PKG=npm")
+```
+
+Always required:
+```bash
 ls ~/.claude/plugins/marketplaces/*/plugins/feature-dev/agents/code-reviewer.md >/dev/null 2>&1 \
   || echo "MISSING: feature-dev:code-reviewer agent — install the feature-dev plugin"
 ```
 
 **Optional (warn, continue):**
-- `/security-review` skill → used by Geddy for deeper security pass. Check presence via the skills list shown at session start. If absent: warn `Geddy will rely on prompt guidance only — /security-review skill not installed`.
+- `/security-review` skill → used by Sting for deeper security pass. Check presence via the skills list shown at session start. If absent: warn `Sting will rely on prompt guidance only — /security-review skill not installed`.
 - `tokensave` → presence of `.tokensave/` in repo. If absent: warn `Reviewers will fall back to Read/grep (no tokensave cross-ref)`.
 
 If any required dep missing: report the list + suggested install commands, stop. Do not proceed to Step 1.
@@ -55,13 +79,13 @@ Fallback: `main` → `master` → `develop` (first that exists as ref).
 
 ### Step 3 — Preflight gate
 
-Run build + tests. Abort review if either fails (no point reviewing broken code).
+Run build only (no tests — too slow at review start). Abort review if build fails.
 
 ```bash
-bash {skill_dir}/scripts/preflight.sh [Debug|Release]
+bash {skill_dir}/scripts/preflight.sh {stack} [Debug|Release]
 ```
 
-`{skill_dir}` = directory of this skill file. Default config: `Debug`. Pass `Release` if the project requires it.
+`{skill_dir}` = directory of this skill file. `{stack}` = `dotnet` or `node` (from Step 0). Default config for .NET: `Debug`. Pass `Release` if the project requires it.
 
 If fail: report error, stop. If pass: continue. Skip preflight only if user explicitly says so (e.g. `--fast`).
 
@@ -110,8 +134,7 @@ Each agent's prompt is a complete, self-contained file. Read the file and use it
 | Andy | `agents/andy.md` |
 
 **Placeholders to substitute in each file:**
-- `{version}` — .NET version from CLAUDE.md or `dotnet --version`
-- `{tech_stack_summary}` — brief stack summary from CLAUDE.md
+- `{tech_stack_summary}` — brief stack summary from CLAUDE.md; if absent, derive from Step 0 detection (e.g. `TypeScript/React, Node 20` or `.NET 8, ASP.NET Core`)
 - `{repo_path}` — absolute path to repo root
 - `{base_branch}` — detected in Step 2
 - `{branch_name}` — current branch name

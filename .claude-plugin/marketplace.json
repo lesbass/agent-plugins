@@ -7,11 +7,11 @@
   "plugins": [
     {
       "name": "lesbass-skills",
-      "source": "./plugins/team-code-review",
+      "source": "./plugins/skills",
       "description": "Police reviewers (Sting, Stewart, Andy) find issues; Rush fixers (Geddy, Alex, Neil) apply them. Three skills: team-code-review, team-review-fix, team-review-and-fix.",
-      "version": "1.5.0",
+      "version": "1.6.0",
       "category": "code-review",
-      "keywords": ["code-review", "dotnet", "team", "parallel-agents"],
+      "keywords": ["code-review", "dotnet", "typescript", "team", "parallel-agents"],
       "license": "MIT"
     }
   ]

@@ -21,6 +21,20 @@ Combined findings (e.g. `Sting+Stewart`) go to both relevant fixers.
 
 ## Execution
 
+### Step 0 — Detect stack + build command
+
+```bash
+if ls *.sln *.csproj 2>/dev/null | grep -q .; then
+  echo "STACK=dotnet"
+elif [ -f package.json ]; then
+  echo "STACK=node"
+fi
+```
+
+Derive `{build_command}`:
+- `dotnet` → `dotnet build -c Debug --nologo -v quiet`
+- `node` → detect package manager (`yarn`/`pnpm`/`npm`), use `<pkgmgr> run build` (from worktree path)
+
 ### Step 1 — Parse and partition findings
 
 Group rows by `By` column:
@@ -62,10 +76,11 @@ Single message with N Agent calls (N = active fixers):
 | Neil | `agents/neil.md` | `{neil_findings}` |
 
 **Placeholders to substitute:**
-- `{version}`, `{tech_stack_summary}` — from CLAUDE.md
+- `{tech_stack_summary}` — from CLAUDE.md; if absent, derive from Step 0 (e.g. `TypeScript/React, Node 20`)
 - `{repo_path}` — absolute repo root
 - `{worktree_branch}` — e.g. `review-fix-geddy`
 - `{worktree_path}` — e.g. `/tmp/review-fix-geddy`
+- `{build_command}` — derived in Step 0 (e.g. `dotnet build -c Debug --nologo -v quiet` or `npm run build`)
 - `{*_findings}` — the partitioned rows for that agent (plain text, same format as unified table)
 
 ### Step 5 — Collect results
@@ -136,6 +151,6 @@ Example: for "Tom Sawyer" → `https://www.youtube.com/results?search_query=Rush
 ## Notes
 
 - Worktrees share the same `.git` — fixers see the same history but write to isolated branches.
-- `dotnet build` inside a worktree runs against that worktree's files only.
+- Build command (`{build_command}`) inside a worktree runs against that worktree's files only.
 - Blocked findings are not lost — they appear in the summary for manual follow-up.
 - Do not remove worktrees until after the merge is complete.
