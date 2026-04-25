@@ -6,10 +6,10 @@
   },
   "plugins": [
     {
-      "name": "team-code-review",
+      "name": "lesbass-skills",
       "source": "./plugins/team-code-review",
-      "description": "Rush-themed 3-agent parallel code reviewer (Geddy, Alex, Neil) covering Security & Correctness, Standards & Architecture, Testability & Performance.",
-      "version": "1.0.0",
+      "description": "Police reviewers (Sting, Stewart, Andy) find issues; Rush fixers (Geddy, Alex, Neil) apply them. Three skills: team-code-review, team-review-fix, team-review-and-fix.",
+      "version": "1.5.0",
       "category": "code-review",
       "keywords": ["code-review", "dotnet", "team", "parallel-agents"],
       "license": "MIT"
