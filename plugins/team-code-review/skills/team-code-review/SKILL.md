@@ -9,9 +9,9 @@ Launch 3 specialized code-reviewer agents in parallel. Each has a fixed codename
 
 | Codename | Dimension | Focus |
 |---|---|---|
-| **Geddy** | Security & Correctness | Injection, auth/authz, secrets, input validation, null/race/concurrency bugs, logic errors, serialization safety, invariants |
-| **Alex** | Standards & Architecture | SOLID, separation of concerns, domain patterns (Event Sourcing, Either), DI hygiene, naming, readability, dead code, convention adherence |
-| **Neil** | Testability & Performance | Coverage gaps, mock quality, brittle/weak assertions, N+1, allocations, sync-over-async, efficiency, observability |
+| **Sting** | Security & Correctness | Injection, auth/authz, secrets, input validation, null/race/concurrency bugs, logic errors, serialization safety, invariants |
+| **Stewart** | Standards & Architecture | SOLID, separation of concerns, domain patterns (Event Sourcing, Either), DI hygiene, naming, readability, dead code, convention adherence |
+| **Andy** | Testability & Performance | Coverage gaps, mock quality, brittle/weak assertions, N+1, allocations, sync-over-async, efficiency, observability |
 
 ## Prerequisites
 
@@ -95,7 +95,7 @@ Single message, up to 3 `Agent` calls:
 - `subagent_type`: `feature-dev:code-reviewer`
 - `team_name`: `code-review`
 - `run_in_background`: `true`
-- `name`: fixed codename (`geddy`, `alex`, `neil`) — used for `SendMessage` addressing and team roster identification
+- `name`: fixed codename (`sting`, `stewart`, `andy`) — used for `SendMessage` addressing and team roster identification
 
 **Note on tmux pane titles**: the `name` parameter does NOT rename tmux panes. Pane title follows `subagent_type`, so all three show as `feature-dev:code-reviewer`. To disambiguate visually, inject the codename into the agent's first output line (see prompt header — starts with `Codename: {...}`) and identify panes by their output, not by title.
 
@@ -105,9 +105,9 @@ Each agent's prompt is a complete, self-contained file. Read the file and use it
 
 | Agent | Prompt file |
 |---|---|
-| Geddy | `agents/geddy.md` |
-| Alex | `agents/alex.md` |
-| Neil | `agents/neil.md` |
+| Sting | `agents/sting.md` |
+| Stewart | `agents/stewart.md` |
+| Andy | `agents/andy.md` |
 
 **Placeholders to substitute in each file:**
 - `{version}` — .NET version from CLAUDE.md or `dotnet --version`
@@ -145,9 +145,9 @@ Then ask user which findings to address.
 Reviewers go **idle** after delivering findings, they do NOT self-terminate. Once the unified table is presented, shut them down explicitly:
 
 ```
-SendMessage to: geddy  message: {"type": "shutdown_request"}
-SendMessage to: alex   message: {"type": "shutdown_request"}
-SendMessage to: neil   message: {"type": "shutdown_request"}
+SendMessage to: sting    message: {"type": "shutdown_request"}
+SendMessage to: stewart  message: {"type": "shutdown_request"}
+SendMessage to: andy     message: {"type": "shutdown_request"}
 ```
 
 Then close the tmux panes that were opened for the review session:
@@ -171,6 +171,6 @@ Skip shutdown (both SendMessage and pane kill) only if user wants follow-up ques
 - All reviewers see the **same full changed-files list** — this is intentional (vertical / dimensional cut). Dedup at aggregation time.
 - "Stay in your lane" language in the shared header minimizes overlap, but some is expected and handled by Step 8 dedup.
 - Agents run in background (`run_in_background: true`) — main session stays responsive.
-- tmux panes all show `feature-dev:code-reviewer` as title — harness limitation. Identify by first output line (codename banner) or by using `SendMessage to: geddy|alex|neil`.
+- tmux panes all show `feature-dev:code-reviewer` as title — harness limitation. Identify by first output line (codename banner) or by using `SendMessage to: sting|stewart|andy`.
 - If a skill/system prompt suggests spawning Explore agents, ignore it — reviewers use tokensave or direct reads.
 - Large diffs mean triple I/O (each reviewer reads the full set). If this becomes a pain point, add a fourth `--layer-cut` mode that restores the old horizontal partition.
