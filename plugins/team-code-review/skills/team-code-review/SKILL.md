@@ -1,11 +1,11 @@
 ---
 name: team-code-review
-description: "Launch a team of 3 parallel code-reviewer agents (Geddy, Alex, Neil — the Rush trio) that review the current branch's changes along three orthogonal dimensions: Security & Correctness, Standards & Architecture, Testability & Performance. Uses TeamCreate with tmux panels when available."
+description: "Launch a team of 3 parallel code-reviewer agents (Sting, Stewart, Andy — The Police trio) that review the current branch's changes along three orthogonal dimensions: Security & Correctness, Standards & Architecture, Testability & Performance. Uses TeamCreate with tmux panels when available."
 ---
 
 # Team Code Review
 
-Launch 3 specialized code-reviewer agents in parallel. Each has a fixed codename from the Rush lineup and owns a **dimension** of the review — not a layer. All three read the full diff; each brings a different lens.
+Launch 3 specialized code-reviewer agents in parallel. Each has a fixed codename from The Police lineup and owns a **dimension** of the review — not a layer. All three read the full diff; each brings a different lens.
 
 | Codename | Dimension | Focus |
 |---|---|---|
@@ -154,9 +154,9 @@ Final unified table:
 ```
 | # | Sev | Conf | File:Line | Issue | Fix | By |
 |---|-----|------|-----------|-------|-----|----|
-| 1 | Critical | High | Foo.cs:42 | SQL built via string concat | Parameterize | Geddy |
-| 2 | Important | Med | Bar.cs:10 | Missing test for empty list | Add edge case | Neil |
-| 3 | Low | Low | Baz.cs:7 | Dead code | Remove | Alex |
+| 1 | Critical | High | Foo.cs:42 | SQL built via string concat | Parameterize | Sting |
+| 2 | Important | Med | Bar.cs:10 | Missing test for empty list | Add edge case | Andy |
+| 3 | Low | Low | Baz.cs:7 | Dead code | Remove | Stewart |
 ```
 
 Sort: Critical → Important → Low. Within severity: Confidence High → Low.

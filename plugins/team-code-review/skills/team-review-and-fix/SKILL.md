@@ -40,7 +40,7 @@ Examples:
 Execute all steps of `team-code-review` (Steps 0–8) verbatim, including:
 - Dependency check
 - Base branch detection
-- Preflight gate (build + tests)
+- Preflight gate (build only)
 - Changed-files computation
 - Parallel launch of Sting, Stewart, Andy
 - Deduplication and unified findings table
