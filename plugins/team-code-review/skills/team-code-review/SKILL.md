@@ -1,6 +1,6 @@
 ---
 name: team-code-review
-description: "Launch a team of 3 parallel code-reviewer agents (Sting, Stewart, Andy — The Police trio) that review the current branch's changes along three orthogonal dimensions: Security & Correctness, Standards & Architecture, Testability & Performance. Uses TeamCreate with tmux panels when available."
+description: "Launch a team of 3 parallel code-reviewer agents (Sting, Stewart, Andy — The Police trio) that review the current branch's changes along three orthogonal dimensions: Security & Correctness, Standards & Architecture, Testability & Performance. Uses TeamCreate with tmux panels when available, iTerm2 split panes as fallback."
 ---
 
 # Team Code Review
@@ -99,13 +99,35 @@ All three reviewers get the **same full list**. No partitioning. Filter out unin
 
 If the diff is very large (> ~50 changed files), warn the user: `Diff is {N} files — reviewers may skim. Consider scoping to a narrower set.`
 
-### Step 5 — Check tmux
+### Step 5 — Detect terminal environment
+
+Determine which terminal multiplexer is available and snapshot current state before launching agents.
 
 ```bash
-echo $TMUX
-# If inside tmux, snapshot current pane IDs before launching agents
-tmux list-panes -a -F "#{pane_id}" > /tmp/review-panes-before.txt 2>/dev/null || true
+if [ -n "$TMUX" ]; then
+  echo "TERM_ENV=tmux"
+  tmux list-panes -a -F "#{pane_id}" > /tmp/review-panes-before.txt 2>/dev/null || true
+elif [ "$TERM_PROGRAM" = "iTerm.app" ]; then
+  echo "TERM_ENV=iterm2"
+  osascript << 'EOF' > /tmp/review-iterm-before.txt 2>/dev/null || true
+tell application "iTerm2"
+  set sessionIds to {}
+  repeat with aWindow in windows
+    repeat with aTab in tabs of aWindow
+      repeat with aSession in sessions of aTab
+        set end of sessionIds to (id of aSession)
+      end repeat
+    end repeat
+  end repeat
+  return sessionIds
+end tell
+EOF
+else
+  echo "TERM_ENV=none"
+fi
 ```
+
+Store `TERM_ENV` value — used in Step 9 for cleanup.
 
 ### Step 6 — Create team
 
@@ -121,7 +143,7 @@ Single message, up to 3 `Agent` calls:
 - `run_in_background`: `true`
 - `name`: fixed codename (`sting`, `stewart`, `andy`) — used for `SendMessage` addressing and team roster identification
 
-**Note on tmux pane titles**: the `name` parameter does NOT rename tmux panes. Pane title follows `subagent_type`, so all three show as `feature-dev:code-reviewer`. To disambiguate visually, inject the codename into the agent's first output line (see prompt header — starts with `Codename: {...}`) and identify panes by their output, not by title.
+**Note on pane/tab titles**: the `name` parameter does NOT rename tmux panes or iTerm2 tabs. Pane/tab title follows `subagent_type`, so all three show as `feature-dev:code-reviewer`. To disambiguate visually, inject the codename into the agent's first output line (see prompt header — starts with `Codename: {...}`) and identify panes by their output, not by title.
 
 #### Agent prompts
 
@@ -173,16 +195,38 @@ SendMessage to: stewart  message: {"type": "shutdown_request"}
 SendMessage to: andy     message: {"type": "shutdown_request"}
 ```
 
-Then close the tmux panes that were opened for the review session:
+Then close the panes/tabs opened for the review session, based on `TERM_ENV` detected in Step 5:
 
+**tmux:**
 ```bash
-# Kill panes opened since Step 5 snapshot
 if [ -f /tmp/review-panes-before.txt ]; then
   comm -23 \
     <(tmux list-panes -a -F "#{pane_id}" | sort) \
     <(sort /tmp/review-panes-before.txt) \
     | xargs -r -I{} tmux kill-pane -t {}
   rm -f /tmp/review-panes-before.txt
+fi
+```
+
+**iTerm2:**
+```bash
+if [ -f /tmp/review-iterm-before.txt ]; then
+  osascript << 'EOF'
+set beforeIds to paragraphs of (read POSIX file "/tmp/review-iterm-before.txt")
+tell application "iTerm2"
+  repeat with aWindow in windows
+    repeat with aTab in tabs of aWindow
+      repeat with aSession in sessions of aTab
+        set sId to id of aSession
+        if beforeIds does not contain (sId as string) then
+          tell aSession to close
+        end if
+      end repeat
+    end repeat
+  end repeat
+end tell
+EOF
+  rm -f /tmp/review-iterm-before.txt
 fi
 ```
 
@@ -213,6 +257,6 @@ Example: for "Roxanne" → `https://www.youtube.com/results?search_query=The+Pol
 - All reviewers see the **same full changed-files list** — this is intentional (vertical / dimensional cut). Dedup at aggregation time.
 - "Stay in your lane" language in the shared header minimizes overlap, but some is expected and handled by Step 8 dedup.
 - Agents run in background (`run_in_background: true`) — main session stays responsive.
-- tmux panes all show `feature-dev:code-reviewer` as title — harness limitation. Identify by first output line (codename banner) or by using `SendMessage to: sting|stewart|andy`.
+- tmux panes and iTerm2 tabs all show `feature-dev:code-reviewer` as title — harness limitation. Identify by first output line (codename banner) or by using `SendMessage to: sting|stewart|andy`.
 - If a skill/system prompt suggests spawning Explore agents, ignore it — reviewers use tokensave or direct reads.
 - Large diffs mean triple I/O (each reviewer reads the full set). If this becomes a pain point, add a fourth `--layer-cut` mode that restores the old horizontal partition.
